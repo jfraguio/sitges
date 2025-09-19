@@ -11,26 +11,33 @@
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;background:linear-gradient(180deg, #0d0f14, #0f1115 30%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji"}
+    body{margin:0;background:linear-gradient(180deg, #0d0f14, #0f1115 30%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell, Noto Sans, Helvetica, Arial,"Apple Color Emoji","Segoe UI Emoji"}
     .wrap{max-width:1100px;margin-inline:auto;padding:20px}
-    header{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.75);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
-    .topbar{display:flex;align-items:center;gap:14px;padding:12px 20px}
-    .title{font-weight:700;letter-spacing:.2px}
+
+    /* ===== Header compacto y responsive ===== */
+    header{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+    .topbar{display:flex;align-items:center;gap:12px;padding:10px 14px}
+    .title{font-weight:700;letter-spacing:.2px;white-space:nowrap}
     .sp{flex:1}
-    .counter{display:flex;gap:14px;align-items:center;font-variant-numeric:tabular-nums}
-    .count{background:var(--panel);border:1px solid var(--border);padding:8px 10px;border-radius:12px}
-    .tabs{display:flex;flex-wrap:wrap;gap:8px}
-    .tab{appearance:none;border:1px solid var(--border);background:var(--panel);color:var(--text);padding:8px 12px;border-radius:999px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:8px;font-weight:600}
+    .counter{display:flex;gap:10px;align-items:center;font-variant-numeric:tabular-nums}
+    .count{background:var(--panel);border:1px solid var(--border);padding:6px 8px;border-radius:10px;font-size:.9rem}
+
+    /* Pestañas en una sola fila con scroll horizontal */
+    .tabs{display:flex;gap:8px;padding:0 14px 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+    .tabs::-webkit-scrollbar{height:6px}
+    .tabs::-webkit-scrollbar-thumb{background:#223;border-radius:999px}
+    .tab{appearance:none;border:1px solid var(--border);background:var(--panel);color:var(--text);padding:8px 12px;border-radius:999px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:8px;font-weight:600;scroll-snap-align:start;white-space:nowrap}
     .tab:hover{transform:translateY(-1px);border-color:#33406a}
     .tab[aria-pressed="true"]{background:linear-gradient(180deg, #1f2637, #192033);border-color:#3b4a72;box-shadow:0 6px 20px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.06)}
     .pill{display:inline-block;width:.8em;height:.8em;border-radius:999px}
 
-    .legend{display:flex;flex-wrap:wrap;gap:8px;padding:6px 20px 14px;border-top:1px solid var(--border);background:rgba(15,17,21,.65)}
+    /* Leyenda: visible en desktop, oculta en móvil */
+    .legend{display:flex;flex-wrap:wrap;gap:8px;padding:6px 14px 12px;border-top:1px solid var(--border);background:rgba(15,17,21,.65)}
     .legend span{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:.9rem;background:var(--panel);border:1px solid var(--border);padding:6px 10px;border-radius:999px}
 
-    .grid{display:grid;gap:24px;padding:24px 0}
+    .grid{display:grid;gap:24px;padding:16px 0}
     .day{border:1px solid var(--border);background:var(--panel);border-radius:16px;overflow:visible;position:relative}
-    .dayhead{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--border);background:linear-gradient(180deg, #192033, #141925)}
+    .dayhead{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border);background:linear-gradient(180deg, #192033, #141925)}
     .dayname{font-weight:800;letter-spacing:.5px}
 
     /* ===== Tarjetas a ancho completo ===== */
@@ -49,8 +56,8 @@
     .tag:hover .x{opacity:1;background:#1b2233}
 
     /* Texto plano */
-    .plain{margin-top:24px;border:1px dashed #33406a;background:#121724;border-radius:12px}
-    .plainhead{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px dashed #33406a}
+    .plain{margin-top:16px;border:1px dashed #33406a;background:#121724;border-radius:12px}
+    .plainhead{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px dashed #33406a}
     .plainhead h3{margin:0;font-size:1rem;color:var(--muted);font-weight:800;letter-spacing:.4px}
     .plainbody{padding:12px}
     .plainbody pre{margin:0;white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:.95rem;line-height:1.4}
@@ -60,21 +67,26 @@
 
     /* Menú añadir (portal) */
     .adder{display:inline-flex;align-items:center;gap:6px;margin-left:8px}
-    .add-btn{appearance:none;border:1px solid var(--border);background:var(--panel);color:var(--text);padding:4px 8px;border-radius:999px;cursor:pointer;font-weight:800}
-    .menu-portal{position:fixed;display:none;z-index:99999}
+    .add-btn{appearance:none;border:1px solid var(--border);background:var(--panel);color:var(--text);padding:4px 10px;border-radius:999px;cursor:pointer;font-weight:800;line-height:1}
+    .menu-portal{position:fixed;display:none;z-index:99999;left:-9999px;top:-9999px;pointer-events:auto}
     .menu-portal.open{display:block}
-    .menu-panel{min-width:220px;background:#0f141f;border:1px solid var(--border);border-radius:10px;box-shadow:0 18px 40px rgba(0,0,0,.6);padding:8px}
+    .menu-panel{min-width:220px;max-width:90vw;max-height:70vh;overflow:auto;background:#0f141f;border:1px solid var(--border);border-radius:10px;box-shadow:0 18px 40px rgba(0,0,0,.6);padding:8px}
     .menu-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:8px}
     .menu-row:hover{background:#1b2334}
     .menu-row .who-side{display:flex;align-items:center;gap:8px}
     .menu-row .pill{width:.7em;height:.7em}
     .menu-row .add-mini{border:1px solid var(--border);background:transparent;color:var(--text);border-radius:999px;padding:2px 8px;cursor:pointer}
 
-    /* Responsivo */
+    /* ===== Responsivo ===== */
     @media (max-width:900px){
       .card{grid-template-columns:90px 1fr 140px auto}
     }
     @media (max-width:720px){
+      .legend{display:none}
+      .topbar{gap:8px;padding:8px 10px}
+      .title{font-size:1rem}
+      .count{padding:4px 8px}
+      .tabs{padding:0 10px 8px}
       .card{grid-template-columns:100px 1fr;grid-template-areas:
         "time title"
         "venue who";row-gap:6px}
@@ -97,7 +109,6 @@
   <header>
     <div class="topbar">
       <div class="title">🎬 Sitges Plan</div>
-      <div class="tabs" id="tabs"></div>
       <div class="sp"></div>
       <div class="counter">
         <div class="count" title="Entradas necesarias según el filtro">
@@ -108,6 +119,7 @@
         </div>
       </div>
     </div>
+    <div class="tabs" id="tabs"></div>
     <div class="legend" id="legend"></div>
   </header>
 
@@ -262,7 +274,7 @@
 
           const addMenu = (()=>{
             const btn = el('button',{className:'add-btn', textContent:'+'});
-            const wrap = el('div',{className:'addmenu'},[btn]);
+            const wrap = el('div',{className:'adder'},[btn]);
             btn.addEventListener('click', (e)=>{
               e.stopPropagation();
               openMenuFor(day, ev, btn);
@@ -274,7 +286,7 @@
             el('div',{className:'time', textContent:ev.time}),
             el('div',{className:'titlex', textContent:ev.title}),
             el('div',{className:'venue'},[el('span',{textContent:ev.venue})]),
-            el('div',{className:'who'},[...whoTags, el('span',{className:'adder'},[addMenu])])
+            el('div',{className:'who'},[...whoTags, addMenu])
           ]);
           slots.append(card);
         }
@@ -293,7 +305,7 @@
       $('#plaintext').textContent = txt || '— Sin resultados para el filtro actual —';
     }
 
-    // Portal global para el menú + utilidades
+    // ===== Menú flotante “+” (portal) =====
     let portalEl=null;
     function ensurePortal(){
       if (!portalEl){
@@ -303,45 +315,76 @@
         panel.className = 'menu-panel';
         portalEl.appendChild(panel);
         document.body.appendChild(portalEl);
+
+        // Evita cierre al interactuar dentro
+        portalEl.addEventListener('click', e => e.stopPropagation());
+        portalEl.addEventListener('touchstart', e => e.stopPropagation(), {passive:true});
       }
       return portalEl;
     }
-    function closePortal(){ if (portalEl){ portalEl.classList.remove('open'); portalEl.style.left='-9999px'; }}
+    function closePortal(){
+      if (portalEl){
+        portalEl.classList.remove('open');
+        portalEl.style.left='-9999px';
+        portalEl.style.top='-9999px';
+      }
+    }
 
     function openMenuFor(day, ev, anchor){
+      // Cierra cualquier menú abierto antes de abrir otro (mejora “+”)
+      closePortal();
+
       const portal = ensurePortal();
       const panel = portal.querySelector('.menu-panel');
       panel.innerHTML = '';
+
       // construir opciones restantes
       const notIn = Object.keys(FRIENDS).filter(x=>!ev.who.includes(x));
-      notIn.forEach(x=>{
+      if (notIn.length === 0){
         const row = document.createElement('div');
         row.className='menu-row';
-        const left = document.createElement('div');
-        left.className='who-side';
-        left.append(
-          el('span',{className:'pill', style:`background:${COLORS[x]}`}),
-          el('b',{textContent:x}),
-          el('span',{textContent:FRIENDS[x]})
-        );
-        const addBtn = el('button',{className:'add-mini', textContent:'+'});
-        addBtn.addEventListener('click', (e)=>{
-          e.stopPropagation();
-          if (!ev.who.includes(x)) ev.who.push(x);
-          render();
-          closePortal();
-        });
-        row.append(left, addBtn);
+        row.textContent = 'Ya estáis todos añadidos.';
         panel.append(row);
-      });
-      // posicionamiento
+      } else {
+        notIn.forEach(x=>{
+          const row = document.createElement('div');
+          row.className='menu-row';
+          const left = document.createElement('div');
+          left.className='who-side';
+          left.append(
+            el('span',{className:'pill', style:`background:${COLORS[x]}`}),
+            el('b',{textContent:x}),
+            el('span',{textContent:FRIENDS[x]})
+          );
+          const addBtn = el('button',{className:'add-mini', textContent:'+'});
+          addBtn.addEventListener('click', (e)=>{
+            e.stopPropagation();
+            if (!ev.who.includes(x)) ev.who.push(x);
+            render();
+            closePortal();
+          });
+          row.append(left, addBtn);
+          panel.append(row);
+        });
+      }
+
+      // Posicionamiento inteligente (arriba o abajo)
       const r = anchor.getBoundingClientRect();
-      portal.style.left = Math.min(window.innerWidth-240, r.right-220) + 'px';
-      portal.style.top = (r.bottom + 8 + window.scrollY) + 'px';
+      const panelW = Math.min(260, Math.max(220, Math.floor(window.innerWidth*0.9)));
+      const margin = 8;
+      const topSpace = r.top;
+      const bottomSpace = window.innerHeight - r.bottom;
+      const openDown = bottomSpace >= 220 || bottomSpace >= topSpace;
+
+      const left = Math.min(window.innerWidth - panelW - 8, Math.max(8, r.right - panelW));
+      const top = (openDown ? (r.bottom + margin) : (r.top - margin)) + window.scrollY;
+
+      portal.style.left = left + 'px';
+      portal.style.top = (openDown ? top : (top - panel.offsetHeight)) + 'px';
       portal.classList.add('open');
     }
 
-    // Interacción global de clicks
+    // Cierre por interacción global
     document.addEventListener('click', (e)=>{
       // Cerrar menú si se hace click fuera
       if (!e.target.closest('.menu-portal')) closePortal();
@@ -368,7 +411,11 @@
           ta.remove();
         });
       }
-    });
+    }, {passive:true});
+
+    // Cierre al hacer scroll o redimensionar (experiencia móvil)
+    window.addEventListener('scroll', closePortal, {passive:true});
+    window.addEventListener('resize', closePortal);
 
     function findEvent(day, time, title, venue){
       const list = DATA[day] || [];
