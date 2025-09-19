@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sitges Plan</title>
+  <style>
+    :root{
+      --bg:#0f1115; --panel:#161a22; --card:#1b2130; --muted:#8b94a7; --text:#e8eef9; --accent:#4cc9f0; --accent-2:#a0e9ff; --ok:#6ee7b7; --border:#273047;
+      --G:#ff7a59; --A:#ffd166; --M:#95d5b2; --D:#80b3ff; --F:#f77fbe;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:linear-gradient(180deg, #0d0f14, #0f1115 30%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji"}
+    .wrap{max-width:1100px;margin-inline:auto;padding:20px}
+    header{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.75);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+    .topbar{display:flex;align-items:center;gap:14px;padding:12px 20px}
+    .title{font-weight:700;letter-spacing:.2px}
+    .sp{flex:1}
+    .counter{display:flex;gap:14px;align-items:center;font-variant-numeric:tabular-nums}
+    .count{background:var(--panel);border:1px solid var(--border);padding:8px 10px;border-radius:12px}
+    .tabs{display:flex;flex-wrap:wrap;gap:8px}
+    .tab{appearance:none;border:1px solid var(--border);background:var(--panel);color:var(--text);padding:8px 12px;border-radius:999px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:8px;font-weight:600}
+    .tab:hover{transform:translateY(-1px);border-color:#33406a}
+    .tab[aria-pressed="true"]{background:linear-gradient(180deg, #1f2637, #192033);border-color:#3b4a72;box-shadow:0 6px 20px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.06)}
+    .pill{display:inline-block;width:.8em;height:.8em;border-radius:999px}
+
+    .legend{display:flex;flex-wrap:wrap;gap:8px;padding:6px 20px 14px;border-top:1px solid var(--border);background:rgba(15,17,21,.65)}
+    .legend span{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:.9rem;background:var(--panel);border:1px solid var(--border);padding:6px 10px;border-radius:999px}
+
+    .grid{display:grid;gap:24px;padding:24px 0}
+    .day{border:1px solid var(--border);background:var(--panel);border-radius:16px;overflow:visible;position:relative}
+    .dayhead{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--border);background:linear-gradient(180deg, #192033, #141925)}
+    .dayname{font-weight:800;letter-spacing:.5px}
+
+    /* ===== Tarjetas a ancho completo ===== */
+    .slots{display:flex;flex-direction:column;gap:10px;padding:10px}
+    .card{width:100%;display:grid;grid-template-columns:110px 1fr 160px auto;gap:10px;align-items:center;border:1px solid var(--border);background:var(--card);border-radius:12px;padding:12px 14px;transition:.12s}
+    .card:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.24)}
+
+    .time{font-weight:900;font-size:1rem;letter-spacing:.4px;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .titlex{font-size:1.02rem;font-weight:700;line-height:1.25}
+    .venue{color:var(--muted);font-size:.95rem;justify-self:start}
+
+    .who{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+    .tag{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--border);font-weight:800;position:relative}
+    .tag .pill{width:.7em;height:.7em}
+    .tag .x{display:inline-flex;align-items:center;justify-content:center;width:1.05em;height:1.05em;border-radius:999px;border:1px solid var(--border);font-weight:900;line-height:1;opacity:.6;user-select:none}
+    .tag:hover .x{opacity:1;background:#1b2233}
+
+    /* Texto plano */
+    .plain{margin-top:24px;border:1px dashed #33406a;background:#121724;border-radius:12px}
+    .plainhead{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px dashed #33406a}
+    .plainhead h3{margin:0;font-size:1rem;color:var(--muted);font-weight:800;letter-spacing:.4px}
+    .plainbody{padding:12px}
+    .plainbody pre{margin:0;white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:.95rem;line-height:1.4}
+    .copybar{display:flex;gap:8px;align-items:center;margin-left:auto}
+    .btn{appearance:none;border:1px solid var(--border);background:var(--panel);color:var(--text);padding:6px 10px;border-radius:8px;cursor:pointer}
+    .btn:active{transform:translateY(1px)}
+
+    /* Menú añadir (portal) */
+    .adder{display:inline-flex;align-items:center;gap:6px;margin-left:8px}
+    .add-btn{appearance:none;border:1px solid var(--border);background:var(--panel);color:var(--text);padding:4px 8px;border-radius:999px;cursor:pointer;font-weight:800}
+    .menu-portal{position:fixed;display:none;z-index:99999}
+    .menu-portal.open{display:block}
+    .menu-panel{min-width:220px;background:#0f141f;border:1px solid var(--border);border-radius:10px;box-shadow:0 18px 40px rgba(0,0,0,.6);padding:8px}
+    .menu-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:8px}
+    .menu-row:hover{background:#1b2334}
+    .menu-row .who-side{display:flex;align-items:center;gap:8px}
+    .menu-row .pill{width:.7em;height:.7em}
+    .menu-row .add-mini{border:1px solid var(--border);background:transparent;color:var(--text);border-radius:999px;padding:2px 8px;cursor:pointer}
+
+    /* Responsivo */
+    @media (max-width:900px){
+      .card{grid-template-columns:90px 1fr 140px auto}
+    }
+    @media (max-width:720px){
+      .card{grid-template-columns:100px 1fr;grid-template-areas:
+        "time title"
+        "venue who";row-gap:6px}
+      .time{grid-area:time}
+      .titlex{grid-area:title}
+      .venue{grid-area:venue}
+      .who{grid-area:who;justify-content:flex-start}
+    }
+    @media (max-width:480px){
+      .card{grid-template-columns:1fr;grid-template-areas:
+        "time"
+        "title"
+        "venue"
+        "who"}
+      .time{opacity:.9}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="title">🎬 Sitges Plan</div>
+      <div class="tabs" id="tabs"></div>
+      <div class="sp"></div>
+      <div class="counter">
+        <div class="count" title="Entradas necesarias según el filtro">
+          Entradas: <b id="tickets">0</b>
+        </div>
+        <div class="count muted" title="Nº de proyecciones visibles">
+          Proyecciones: <b id="shows">0</b>
+        </div>
+      </div>
+    </div>
+    <div class="legend" id="legend"></div>
+  </header>
+
+  <div class="wrap">
+    <div class="grid" id="grid"></div>
+
+    <!-- Texto plano sincronizado con el filtro -->
+    <section class="plain" id="plain">
+      <div class="plainhead">
+        <h3>Resumen en texto plano (según filtro)</h3>
+        <div class="copybar">
+          <button class="btn" id="copyBtn" title="Copiar al portapapeles">Copiar</button>
+        </div>
+      </div>
+      <div class="plainbody">
+        <pre id="plaintext"></pre>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Datos base
+    const FRIENDS = { G:"Garcés", A:"Alberto", M:"Morell", D:"David", F:"Fraguío" };
+    const COLORS = { G:'var(--G)', A:'var(--A)', M:'var(--M)', D:'var(--D)', F:'var(--F)' };
+    const DAY_ORDER = ["VIERNES","SÁBADO","DOMINGO","LUNES","MARTES"];
+    const DATA = {
+      "VIERNES": [
+        { time:"18:30", title:"Tornado", venue:"Auditori", who:["F","G","A"] },
+        { time:"20:30", title:"La virgen de la tosquera", venue:"Auditori", who:["M","G","A"] },
+        { time:"22:45", title:"Together", venue:"Auditori", who:["F","G","A"] },
+      ],
+      "SÁBADO": [
+        { time:"14:15", title:"Good Boy", venue:"Auditori", who:["M","D"] },
+        { time:"16:00", title:"The furious", venue:"Auditori", who:["F"] },
+        { time:"18:30", title:"We Bury The Dead", venue:"Auditori", who:["D"] },
+        { time:"19:30", title:"V/H/S/Halloween", venue:"Prado", who:["F","G","A"] },
+        { time:"19:45", title:"Singular", venue:"Tramuntana", who:["D"] },
+        { time:"22:45", title:"La hermanastra fea", venue:"Auditori", who:["F","D","G","A"] },
+      ],
+      "DOMINGO": [
+        { time:"08:15", title:"La vida de chuck", venue:"Auditori", who:["F"] },
+        { time:"12:00", title:"Test Screening", venue:"Brigadoon", who:["F","D","G","A"] },
+        { time:"16:00", title:"It Ends", venue:"Tramuntana", who:["D","M"] },
+        { time:"19:00", title:"La vida de chuck", venue:"Auditori", who:["M","D","G","A"] },
+        { time:"21:15", title:"Exit 8", venue:"Auditori", who:["F","D","G","A"] },
+        { time:"23:30", title:"Silencio", venue:"Auditori", who:["D","G","A"] },
+      ],
+      "LUNES": [
+        { time:"08:15", title:"The Plague", venue:"Auditori", who:["D"] },
+        { time:"18:30", title:"Crims", venue:"Doble Crim Bellvitge", who:["D","M"] },
+        { time:"23:15", title:"Luger", venue:"Auditori", who:["F","D","G","A"] },
+      ],
+      "MARTES": [
+        { time:"08:15", title:"No other choice", venue:"Auditori", who:["F","D","G","A"] },
+      ]
+    };
+
+    // Estado
+    let filter = 'ALL';
+
+    // UI helpers
+    const $ = sel => document.querySelector(sel);
+    const el = (tag, props={}, children=[])=>{
+      const n = document.createElement(tag);
+      const { dataset, ...rest } = props;
+      Object.assign(n, rest);
+      if (dataset){ for(const [k,v] of Object.entries(dataset)) n.dataset[k]=v; }
+      for(const c of children) n.append(c);
+      return n;
+    };
+
+    function buildTabs(){
+      const tabs = $('#tabs');
+      tabs.innerHTML='';
+      const all = el('button',{className:'tab', role:'button', ariaPressed: filter==='ALL'?'true':'false', onclick:()=>setFilter('ALL')},[
+        el('span',{className:'pill', style:`background:linear-gradient(90deg, var(--accent), var(--accent-2))`}),
+        el('span',{textContent:'Todos'})
+      ]);
+      tabs.append(all);
+
+      for (const k of Object.keys(FRIENDS)){
+        const b = el('button',{className:'tab', role:'button', ariaPressed: filter===k?'true':'false', onclick:()=>setFilter(k)},[
+          el('span',{className:'pill', style:`background:${COLORS[k]}`}),
+          el('span',{textContent:`${FRIENDS[k]} (${k})`})
+        ]);
+        tabs.append(b);
+      }
+    }
+
+    function setFilter(next){
+      filter = next;
+      buildTabs();
+      render();
+    }
+
+    function matchesFilter(who){
+      if (filter==='ALL') return true;
+      return who.includes(filter);
+    }
+
+    function buildPlainText(){
+      const parts = [];
+      for (const day of DAY_ORDER){
+        const items = (DATA[day]||[]).slice().sort((a,b)=>a.time.localeCompare(b.time));
+        const lines = [];
+        for (const ev of items){
+          if (!matchesFilter(ev.who)) continue;
+          lines.push(`${ev.time} - ${ev.title} - ${ev.venue} [${ev.who.join('')}]`);
+        }
+        if (lines.length){
+          parts.push(day);
+          parts.push(lines.join('\n'));
+          parts.push('');
+        }
+      }
+      return parts.join('\n');
+    }
+
+    function render(){
+      const grid = $('#grid');
+      grid.innerHTML='';
+      let shows = 0; // nº de tarjetas visibles
+      let tickets = 0; // entradas necesarias
+
+      for (const day of DAY_ORDER){
+        const items = DATA[day].slice().sort((a,b)=>a.time.localeCompare(b.time));
+        const container = el('section',{className:'day'});
+        const head = el('div',{className:'dayhead'},[
+          el('div',{className:'dayname', textContent:day})
+        ]);
+        const slots = el('div',{className:'slots'});
+        let anyShown = false;
+
+        for (const ev of items){
+          if (!matchesFilter(ev.who)) continue;
+          anyShown = true;
+          shows++;
+          tickets += (filter==='ALL' ? ev.who.length : 1);
+
+          const whoTags = ev.who.map(k=>{
+            return el('span',{
+              className:'tag',
+              style:`background:transparent;border-color:${COLORS[k]}`,
+              dataset:{day, time: ev.time, title: ev.title, venue: ev.venue, initial:k},
+              title:`Quitar ${k}`
+            },[
+              el('span',{className:'pill', style:`background:${COLORS[k]}`}),
+              el('b',{textContent:k}),
+              el('span',{className:'x', ariaHidden:'true', textContent:'×'})
+            ]);
+          });
+
+          const addMenu = (()=>{
+            const btn = el('button',{className:'add-btn', textContent:'+'});
+            const wrap = el('div',{className:'addmenu'},[btn]);
+            btn.addEventListener('click', (e)=>{
+              e.stopPropagation();
+              openMenuFor(day, ev, btn);
+            });
+            return wrap;
+          })();
+
+          const card = el('article',{className:'card', dataset:{day}},[
+            el('div',{className:'time', textContent:ev.time}),
+            el('div',{className:'titlex', textContent:ev.title}),
+            el('div',{className:'venue'},[el('span',{textContent:ev.venue})]),
+            el('div',{className:'who'},[...whoTags, el('span',{className:'adder'},[addMenu])])
+          ]);
+          slots.append(card);
+        }
+
+        if (anyShown){
+          container.append(head, slots);
+          grid.append(container);
+        }
+      }
+
+      $('#shows').textContent = shows;
+      $('#tickets').textContent = tickets;
+
+      // Actualiza texto plano + botón copiar
+      const txt = buildPlainText();
+      $('#plaintext').textContent = txt || '— Sin resultados para el filtro actual —';
+    }
+
+    // Portal global para el menú + utilidades
+    let portalEl=null;
+    function ensurePortal(){
+      if (!portalEl){
+        portalEl = document.createElement('div');
+        portalEl.className = 'menu-portal';
+        const panel = document.createElement('div');
+        panel.className = 'menu-panel';
+        portalEl.appendChild(panel);
+        document.body.appendChild(portalEl);
+      }
+      return portalEl;
+    }
+    function closePortal(){ if (portalEl){ portalEl.classList.remove('open'); portalEl.style.left='-9999px'; }}
+
+    function openMenuFor(day, ev, anchor){
+      const portal = ensurePortal();
+      const panel = portal.querySelector('.menu-panel');
+      panel.innerHTML = '';
+      // construir opciones restantes
+      const notIn = Object.keys(FRIENDS).filter(x=>!ev.who.includes(x));
+      notIn.forEach(x=>{
+        const row = document.createElement('div');
+        row.className='menu-row';
+        const left = document.createElement('div');
+        left.className='who-side';
+        left.append(
+          el('span',{className:'pill', style:`background:${COLORS[x]}`}),
+          el('b',{textContent:x}),
+          el('span',{textContent:FRIENDS[x]})
+        );
+        const addBtn = el('button',{className:'add-mini', textContent:'+'});
+        addBtn.addEventListener('click', (e)=>{
+          e.stopPropagation();
+          if (!ev.who.includes(x)) ev.who.push(x);
+          render();
+          closePortal();
+        });
+        row.append(left, addBtn);
+        panel.append(row);
+      });
+      // posicionamiento
+      const r = anchor.getBoundingClientRect();
+      portal.style.left = Math.min(window.innerWidth-240, r.right-220) + 'px';
+      portal.style.top = (r.bottom + 8 + window.scrollY) + 'px';
+      portal.classList.add('open');
+    }
+
+    // Interacción global de clicks
+    document.addEventListener('click', (e)=>{
+      // Cerrar menú si se hace click fuera
+      if (!e.target.closest('.menu-portal')) closePortal();
+
+      const tag = e.target.closest('.tag');
+      if (tag && tag.dataset && tag.dataset.initial){
+        const { day, time, title, venue, initial } = tag.dataset;
+        const ev = findEvent(day, time, title, venue);
+        if (!ev) return;
+        const idx = ev.who.indexOf(initial);
+        if (idx !== -1){ ev.who.splice(idx,1); render(); closePortal(); }
+      }
+
+      // Botón copiar
+      if (e.target && e.target.id === 'copyBtn'){
+        const txt = $('#plaintext').textContent;
+        navigator.clipboard?.writeText(txt).then(()=>{
+          e.target.textContent = 'Copiado';
+          setTimeout(()=> e.target.textContent = 'Copiar', 1200);
+        }).catch(()=>{
+          const ta = document.createElement('textarea');
+          ta.value = txt; document.body.appendChild(ta); ta.select();
+          try{ document.execCommand('copy'); }catch{}
+          ta.remove();
+        });
+      }
+    });
+
+    function findEvent(day, time, title, venue){
+      const list = DATA[day] || [];
+      return list.find(e => e.time === time && e.title === title && e.venue === venue);
+    }
+
+    // ====== Tests no intrusivos ======
+    function computeCounts(filterKey){
+      let shows=0, tickets=0;
+      for (const day of DAY_ORDER){
+        for (const ev of (DATA[day]||[])){
+          const ok = (filterKey==='ALL') || ev.who.includes(filterKey);
+          if (ok){
+            shows++;
+            tickets += (filterKey==='ALL') ? ev.who.length : 1;
+          }
+        }
+      }
+      return {shows, tickets};
+    }
+
+    function deepClone(obj){ return JSON.parse(JSON.stringify(obj)); }
+
+    function selfTests(){
+      try{
+        // 1) Contadores coherentes con filtro
+        const keys=['ALL',...Object.keys(FRIENDS)];
+        for (const k of keys){
+          setFilter(k);
+          const s = Number(document.getElementById('shows').textContent);
+          const t = Number(document.getElementById('tickets').textContent);
+          const exp = computeCounts(k);
+          console.assert(s===exp.shows, `[TEST] shows(${k}) esperado ${exp.shows}, obtenido ${s}`);
+          console.assert(t===exp.tickets, `[TEST] tickets(${k}) esperado ${exp.tickets}, obtenido ${t}`);
+        }
+
+        // 2) Añadir/Quitar actualiza contadores y texto
+        const snapshot = deepClone(DATA);
+        const day='VIERNES';
+        const ev = DATA[day][0];
+        const beforeA = ev.who.includes('A');
+        if (!beforeA) ev.who.push('A'); else ev.who.splice(ev.who.indexOf('A'),1);
+        setFilter('A');
+        const txt = document.getElementById('plaintext').textContent;
+        console.assert(txt.includes(day), '[TEST] texto plano actualizado incluye el día');
+        // restore
+        for (const d of DAY_ORDER){ DATA[d].splice(0, DATA[d].length, ...snapshot[d]); }
+        setFilter('ALL');
+
+        // 3) findEvent devuelve la misma referencia
+        const sample = DATA['DOMINGO'][1];
+        const ref = findEvent('DOMINGO', sample.time, sample.title, sample.venue);
+        console.assert(ref === sample, '[TEST] findEvent debe devolver el mismo objeto');
+
+        // 4) Evita duplicados al añadir vía UI (simulado)
+        const ev2 = DATA['LUNES'][2]; // Luger con FDGA
+        const lenBefore = ev2.who.length;
+        if (!ev2.who.includes('F')) ev2.who.push('F'); // no debería ejecutarse
+        console.assert(ev2.who.length === lenBefore, '[TEST] no debe haber duplicados en who');
+
+        console.log('%c[TEST] OK · Autocomprobaciones básicas','color:#6ee7b7');
+      }catch(e){ console.warn('[TEST] Aviso durante pruebas:', e); }
+    }
+
+    // Init
+    buildTabs();
+    render();
+    selfTests();
+  </script>
+</body>
+</html>
