@@ -348,6 +348,12 @@
       } else {
         notIn.forEach(x=>{
           const row = document.createElement('div');
+          row.addEventListener('click', (e)=>{
+            e.stopPropagation();
+            if (!ev.who.includes(x)) ev.who.push(x);
+            render();
+            closePortal();
+          });
           row.className='menu-row';
           const left = document.createElement('div');
           left.className='who-side';
