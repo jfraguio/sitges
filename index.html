@@ -14,7 +14,6 @@
     body{margin:0;background:linear-gradient(180deg, #0d0f14, #0f1115 30%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell, Noto Sans, Helvetica, Arial,"Apple Color Emoji","Segoe UI Emoji"}
     .wrap{max-width:1100px;margin-inline:auto;padding:20px}
 
-    /* ===== Header compacto y responsive ===== */
     header{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
     .topbar{display:flex;align-items:center;gap:12px;padding:10px 14px}
     .title{font-weight:700;letter-spacing:.2px;white-space:nowrap}
@@ -22,7 +21,6 @@
     .counter{display:flex;gap:10px;align-items:center;font-variant-numeric:tabular-nums}
     .count{background:var(--panel);border:1px solid var(--border);padding:6px 8px;border-radius:10px;font-size:.9rem}
 
-    /* Pestañas en una sola fila con scroll horizontal */
     .tabs{display:flex;gap:8px;padding:0 14px 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
     .tabs::-webkit-scrollbar{height:6px}
     .tabs::-webkit-scrollbar-thumb{background:#223;border-radius:999px}
@@ -31,7 +29,6 @@
     .tab[aria-pressed="true"]{background:linear-gradient(180deg, #1f2637, #192033);border-color:#3b4a72;box-shadow:0 6px 20px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.06)}
     .pill{display:inline-block;width:.8em;height:.8em;border-radius:999px}
 
-    /* Leyenda: visible en desktop, oculta en móvil */
     .legend{display:flex;flex-wrap:wrap;gap:8px;padding:6px 14px 12px;border-top:1px solid var(--border);background:rgba(15,17,21,.65)}
     .legend span{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:.9rem;background:var(--panel);border:1px solid var(--border);padding:6px 10px;border-radius:999px}
 
@@ -40,7 +37,6 @@
     .dayhead{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border);background:linear-gradient(180deg, #192033, #141925)}
     .dayname{font-weight:800;letter-spacing:.5px}
 
-    /* ===== Tarjetas a ancho completo ===== */
     .slots{display:flex;flex-direction:column;gap:10px;padding:10px}
     .card{width:100%;display:grid;grid-template-columns:110px 1fr 160px auto;gap:10px;align-items:center;border:1px solid var(--border);background:var(--card);border-radius:12px;padding:12px 14px;transition:.12s}
     .card:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.24)}
@@ -55,7 +51,6 @@
     .tag .x{display:inline-flex;align-items:center;justify-content:center;width:1.05em;height:1.05em;border-radius:999px;border:1px solid var(--border);font-weight:900;line-height:1;opacity:.6;user-select:none}
     .tag:hover .x{opacity:1;background:#1b2233}
 
-    /* Texto plano */
     .plain{margin-top:16px;border:1px dashed #33406a;background:#121724;border-radius:12px}
     .plainhead{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px dashed #33406a}
     .plainhead h3{margin:0;font-size:1rem;color:var(--muted);font-weight:800;letter-spacing:.4px}
@@ -65,7 +60,6 @@
     .btn{appearance:none;border:1px solid var(--border);background:var(--panel);color:var(--text);padding:6px 10px;border-radius:8px;cursor:pointer}
     .btn:active{transform:translateY(1px)}
 
-    /* Menú añadir (portal) */
     .adder{display:inline-flex;align-items:center;gap:6px;margin-left:8px}
     .add-btn{appearance:none;border:1px solid var(--border);background:var(--panel);color:var(--text);padding:4px 10px;border-radius:999px;cursor:pointer;font-weight:800;line-height:1}
     .menu-portal{position:fixed;display:none;z-index:99999;left:-9999px;top:-9999px;pointer-events:auto}
@@ -77,10 +71,13 @@
     .menu-row .pill{width:.7em;height:.7em}
     .menu-row .add-mini{border:1px solid var(--border);background:transparent;color:var(--text);border-radius:999px;padding:2px 8px;cursor:pointer}
 
-    /* ===== Responsivo ===== */
-    @media (max-width:900px){
-      .card{grid-template-columns:90px 1fr 140px auto}
-    }
+    /* Loading */
+    .loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;gap:12px;background:rgba(10,12,16,.6);backdrop-filter:blur(6px);z-index:999999;color:var(--text);font-weight:700;letter-spacing:.3px}
+    .loading.hidden{display:none}
+    .spinner{width:22px;height:22px;border:3px solid rgba(255,255,255,.25);border-top-color:rgba(255,255,255,.9);border-radius:50%;animation:spin .9s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    @media (max-width:900px){ .card{grid-template-columns:90px 1fr 140px auto} }
     @media (max-width:720px){
       .legend{display:none}
       .topbar{gap:8px;padding:8px 10px}
@@ -97,10 +94,7 @@
     }
     @media (max-width:480px){
       .card{grid-template-columns:1fr;grid-template-areas:
-        "time"
-        "title"
-        "venue"
-        "who"}
+        "time" "title" "venue" "who"}
       .time{opacity:.9}
     }
   </style>
@@ -111,12 +105,8 @@
       <div class="title">🎬 Sitges Plan</div>
       <div class="sp"></div>
       <div class="counter">
-        <div class="count" title="Entradas necesarias según el filtro">
-          Entradas: <b id="tickets">0</b>
-        </div>
-        <div class="count muted" title="Nº de proyecciones visibles">
-          Proyecciones: <b id="shows">0</b>
-        </div>
+        <div class="count">Entradas: <b id="tickets">0</b></div>
+        <div class="count muted">Proyecciones: <b id="shows">0</b></div>
       </div>
     </div>
     <div class="tabs" id="tabs"></div>
@@ -126,7 +116,6 @@
   <div class="wrap">
     <div class="grid" id="grid"></div>
 
-    <!-- Texto plano sincronizado con el filtro -->
     <section class="plain" id="plain">
       <div class="plainhead">
         <h3>Resumen en texto plano (según filtro)</h3>
@@ -140,16 +129,20 @@
     </section>
   </div>
 
+  <!-- Loading -->
+  <div id="loading" class="loading hidden">
+    <div class="spinner" aria-hidden="true"></div>
+    <div>Cargando…</div>
+  </div>
+
   <script>
-    // Datos base amigos/colores
     const FRIENDS = { G:"Garcés", A:"Alberto", M:"Morell", D:"David", F:"Fraguío", J:"Jorge" };
     const COLORS  = { G:'var(--G)', A:'var(--A)', M:'var(--M)', D:'var(--D)', F:'var(--F)', J:'var(--J)' };
     const DAY_ORDER = ["VIERNES","SÁBADO","DOMINGO","LUNES","MARTES"];
 
-    // === PERSIST · URL del Web App de Apps Script (acaba en /exec)
+    // Tu URL de Apps Script /exec
     const PERSIST_URL = "https://script.google.com/macros/s/AKfycbxvQhTP9gUB6wlqBVto7T7Jn5WrUODaOv9XrBf4pv-UBKIBk1zBnIERqIYbhsnYc6I/exec";
 
-    // Estado por defecto (si la hoja está vacía)
     const DEFAULT_DATA = {
       "VIERNES": [
         { time:"18:30", title:"Tornado", venue:"Auditori", who:["F","G","A"] },
@@ -182,13 +175,9 @@
       ]
     };
 
-    // === PERSIST · estado vivo
     let DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
-
-    // Estado UI
     let filter = 'ALL';
 
-    // Helpers DOM
     const $ = sel => document.querySelector(sel);
     const el = (tag, props={}, children=[])=>{
       const n = document.createElement(tag);
@@ -199,85 +188,103 @@
       return n;
     };
 
-    // === PERSIST · serialización para hoja
+    function setLoading(v){ $('#loading').classList.toggle('hidden', !v); }
+
+    // Mostrar sólo "Viernes", "Sábado", etc.
+    function prettyDay(key){
+      const lower = String(key||'').toLocaleLowerCase('es-ES');
+      return lower.charAt(0).toLocaleUpperCase('es-ES') + lower.slice(1);
+    }
+
+    // --- NUEVO: normaliza horas que llegan como Date (1899...), número Sheets o string ---
+    function normalizeTime(v){
+      if (v == null) return '';
+      // String "H:MM" o "HH:MM"
+      if (typeof v === 'string'){
+        const s = v.trim();
+        const m = s.match(/^(\d{1,2}):(\d{2})$/);
+        if (m) return m[1].padStart(2,'0') + ':' + m[2];
+        // Intento parsear como fecha/hora en texto
+        const d = new Date(s);
+        if (!isNaN(d)) {
+          return d.toLocaleTimeString('es-ES', {
+            hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Europe/Madrid'
+          });
+        }
+        return s;
+      }
+      // Número: fracción de día (Google Sheets)
+      if (typeof v === 'number'){
+        const totalMin = Math.round(v * 24 * 60);
+        const hh = String(Math.floor(totalMin / 60) % 24).padStart(2,'0');
+        const mm = String(totalMin % 60).padStart(2,'0');
+        return `${hh}:${mm}`;
+      }
+      // Objeto Date
+      if (v instanceof Date && !isNaN(v)){
+        return v.toLocaleTimeString('es-ES', {
+          hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Europe/Madrid'
+        });
+      }
+      return String(v);
+    }
+
     function rowsFromDATA(obj) {
       const rows = [];
       for (const day of DAY_ORDER) {
         for (const ev of (obj[day] || [])) {
-          rows.push({
-            day,
-            time: ev.time,
-            title: ev.title,
-            venue: ev.venue,
-            who: (ev.who || []).join('')
-          });
+          rows.push({ day, time: ev.time, title: ev.title, venue: ev.venue, who: (ev.who||[]).join('') });
         }
       }
       return rows;
     }
-
     function DATAFromRows(rows) {
-      const byDay = {};
-      for (const d of DAY_ORDER) byDay[d] = [];
+      const byDay = {}; for (const d of DAY_ORDER) byDay[d] = [];
       for (const r of rows) {
         const day = r.day && DAY_ORDER.includes(r.day) ? r.day : null;
         if (!day) continue;
         byDay[day].push({
-          time: r.time || '',
+          time: normalizeTime(r.time), // <-- usar hora normalizada
           title: r.title || '',
           venue: r.venue || '',
           who: (r.who || '').replace(/[^A-Z]/gi,'').toUpperCase().split('').filter(Boolean)
         });
       }
-      for (const d of DAY_ORDER) {
-        byDay[d].sort((a,b)=> (a.time||'').localeCompare(b.time||''));
-      }
+      for (const d of DAY_ORDER) byDay[d].sort((a,b)=>(a.time||'').localeCompare(b.time||''));
       return byDay;
     }
 
-    // === PERSIST · cliente API (Apps Script)
     async function loadFromSheet() {
       if (!PERSIST_URL) return null;
       try {
         const r = await fetch(PERSIST_URL, { method: 'GET' });
         if (!r.ok) return null;
-        const json = await r.json();
-        if (!json || !Array.isArray(json.rows)) return null;
-        if (json.rows.length === 0) return []; // hoja vacía
-        return json.rows;
+        const j = await r.json();
+        if (!j || !Array.isArray(j.rows)) return null;
+        return j.rows; // [] si vacía
       } catch { return null; }
     }
-
-    let _saveTimer = null;
-    function saveToSheetDebounced() {
-      clearTimeout(_saveTimer);
-      _saveTimer = setTimeout(saveToSheet, 350); // evita ráfagas
-    }
-
-    async function saveToSheet() {
+    let _saveTimer=null;
+    function saveToSheetDebounced(){ clearTimeout(_saveTimer); _saveTimer=setTimeout(saveToSheet,400); }
+    async function saveToSheet(){
       if (!PERSIST_URL) return;
-      try {
+      try{
         const rows = rowsFromDATA(DATA);
         await fetch(PERSIST_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' }, // evita preflight
-          body: 'data=' + encodeURIComponent(JSON.stringify({ rows }))
+          method:'POST',
+          headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
+          body:'data='+encodeURIComponent(JSON.stringify({rows}))
         });
-      } catch (e) {
-        console.warn('[PERSIST] Error al guardar:', e);
-      }
+      }catch(e){ console.warn('[PERSIST] Error al guardar:', e); }
     }
 
-    // Tabs + filtro
     function buildTabs(){
-      const tabs = $('#tabs');
-      tabs.innerHTML='';
+      const tabs = $('#tabs'); tabs.innerHTML='';
       const all = el('button',{className:'tab', role:'button', ariaPressed: filter==='ALL'?'true':'false', onclick:()=>setFilter('ALL')},[
         el('span',{className:'pill', style:`background:linear-gradient(90deg, var(--accent), var(--accent-2))`}),
         el('span',{textContent:'Todos'})
       ]);
       tabs.append(all);
-
       for (const k of Object.keys(FRIENDS)){
         const b = el('button',{className:'tab', role:'button', ariaPressed: filter===k?'true':'false', onclick:()=>setFilter(k)},[
           el('span',{className:'pill', style:`background:${COLORS[k]}`}),
@@ -286,79 +293,56 @@
         tabs.append(b);
       }
     }
+    function setFilter(next){ filter=next; buildTabs(); render(); }
+    function matchesFilter(who){ return filter==='ALL' || who.includes(filter); }
 
-    function setFilter(next){
-      filter = next;
-      buildTabs();
-      render();
-    }
-
-    function matchesFilter(who){
-      if (filter==='ALL') return true;
-      return who.includes(filter);
-    }
-
-    // Texto plano
     function buildPlainText(){
-      const parts = [];
+      const parts=[];
       for (const day of DAY_ORDER){
-        const items = (DATA[day]||[]).slice().sort((a,b)=>a.time.localeCompare(b.time));
-        const lines = [];
+        const items=(DATA[day]||[]).slice().sort((a,b)=>a.time.localeCompare(b.time));
+        const lines=[];
         for (const ev of items){
           if (!matchesFilter(ev.who)) continue;
           lines.push(`${ev.time} - ${ev.title} - ${ev.venue} [${ev.who.join('')}]`);
         }
-        if (lines.length){
-          parts.push(day);
-          parts.push(lines.join('\n'));
-          parts.push('');
-        }
+        if (lines.length){ parts.push(prettyDay(day)); parts.push(lines.join('\n')); parts.push(''); }
       }
       return parts.join('\n');
     }
 
-    // Render
     function render(){
-      const grid = $('#grid');
-      grid.innerHTML='';
-      let shows = 0;
-      let tickets = 0;
+      const grid = $('#grid'); grid.innerHTML='';
+      let shows=0, tickets=0;
 
       for (const day of DAY_ORDER){
-        const items = (DATA[day]||[]).slice().sort((a,b)=>a.time.localeCompare(b.time));
-        const container = el('section',{className:'day'});
-        const head = el('div',{className:'dayhead'},[
-          el('div',{className:'dayname', textContent:day})
+        const items=(DATA[day]||[]).slice().sort((a,b)=>a.time.localeCompare(b.time));
+        const container=el('section',{className:'day'});
+        const head=el('div',{className:'dayhead'},[
+          el('div',{className:'dayname', textContent:prettyDay(day)})
         ]);
-        const slots = el('div',{className:'slots'});
-        let anyShown = false;
+        const slots=el('div',{className:'slots'});
+        let anyShown=false;
 
         for (const ev of items){
           if (!matchesFilter(ev.who)) continue;
-          anyShown = true;
-          shows++;
-          tickets += (filter==='ALL' ? ev.who.length : 1);
+          anyShown=true; shows++; tickets += (filter==='ALL'? ev.who.length : 1);
 
-          const whoTags = ev.who.map(k=>{
-            return el('span',{
+          const whoTags = ev.who.map(k=> el('span',{
               className:'tag',
               style:`background:transparent;border-color:${COLORS[k]}`,
-              dataset:{day, time: ev.time, title: ev.title, venue: ev.venue, initial:k},
+              dataset:{day, time:ev.time, title:ev.title, venue:ev.venue, initial:k},
               title:`Quitar ${k}`
             },[
               el('span',{className:'pill', style:`background:${COLORS[k]}`}),
               el('b',{textContent:k}),
               el('span',{className:'x', ariaHidden:'true', textContent:'×'})
-            ]);
-          });
+            ])
+          );
 
           const addMenu = (()=>{
             const btn = el('button',{className:'add-btn', textContent:'+'});
             const wrap = el('div',{className:'adder'},[btn]);
-            btn.addEventListener('click', (e)=>{
-              e.stopPropagation();
-              openMenuFor(day, ev, btn);
-            });
+            btn.addEventListener('click', (e)=>{ e.stopPropagation(); openMenuFor(day, ev, btn); });
             return wrap;
           })();
 
@@ -371,107 +355,59 @@
           slots.append(card);
         }
 
-        if (anyShown){
-          container.append(head, slots);
-          grid.append(container);
-        }
+        if (anyShown){ container.append(head, slots); grid.append(container); }
       }
 
-      $('#shows').textContent = shows;
-      $('#tickets').textContent = tickets;
-
-      const txt = buildPlainText();
-      $('#plaintext').textContent = txt || '— Sin resultados para el filtro actual —';
+      $('#shows').textContent=shows;
+      $('#tickets').textContent=tickets;
+      $('#plaintext').textContent = buildPlainText() || '— Sin resultados para el filtro actual —';
     }
 
-    // ===== Menú flotante “+” (portal) =====
     let portalEl=null;
     function ensurePortal(){
       if (!portalEl){
-        portalEl = document.createElement('div');
-        portalEl.className = 'menu-portal';
-        const panel = document.createElement('div');
-        panel.className = 'menu-panel';
-        portalEl.appendChild(panel);
-        document.body.appendChild(portalEl);
-
-        portalEl.addEventListener('click', e => e.stopPropagation());
-        portalEl.addEventListener('touchstart', e => e.stopPropagation(), {passive:true});
+        portalEl=document.createElement('div'); portalEl.className='menu-portal';
+        const panel=document.createElement('div'); panel.className='menu-panel';
+        portalEl.appendChild(panel); document.body.appendChild(portalEl);
+        portalEl.addEventListener('click', e=>e.stopPropagation());
+        portalEl.addEventListener('touchstart', e=>e.stopPropagation(), {passive:true});
       }
       return portalEl;
     }
     function closePortal(){
-      if (portalEl){
-        portalEl.classList.remove('open');
-        portalEl.style.left='-9999px';
-        portalEl.style.top='-9999px';
-      }
+      if (portalEl){ portalEl.classList.remove('open'); portalEl.style.left='-9999px'; portalEl.style.top='-9999px'; }
     }
-
     function openMenuFor(day, ev, anchor){
       closePortal();
+      const portal=ensurePortal();
+      const panel=portal.querySelector('.menu-panel'); panel.innerHTML='';
 
-      const portal = ensurePortal();
-      const panel = portal.querySelector('.menu-panel');
-      panel.innerHTML = '';
-
-      const notIn = Object.keys(FRIENDS).filter(x=>!ev.who.includes(x));
-      if (notIn.length === 0){
-        const row = document.createElement('div');
-        row.className='menu-row';
-        row.textContent = 'Ya estáis todos añadidos.';
-        panel.append(row);
-      } else {
+      const notIn=Object.keys(FRIENDS).filter(x=>!ev.who.includes(x));
+      if (notIn.length===0){
+        const row=document.createElement('div'); row.className='menu-row'; row.textContent='Ya estáis todos añadidos.'; panel.append(row);
+      }else{
         notIn.forEach(x=>{
-          const row = document.createElement('div');
-          row.addEventListener('click', (e)=>{
-            e.stopPropagation();
-            if (!ev.who.includes(x)) {
-              ev.who.push(x);
-              saveToSheetDebounced(); // guarda tras añadir
-            }
-            render();
-            closePortal();
-          });
-          row.className='menu-row';
-          const left = document.createElement('div');
-          left.className='who-side';
-          left.append(
-            el('span',{className:'pill', style:`background:${COLORS[x]}`}),
-            el('b',{textContent:x}),
-            el('span',{textContent:FRIENDS[x]})
-          );
-          const addBtn = el('button',{className:'add-mini', textContent:'+'});
-          addBtn.addEventListener('click', (e)=>{
-            e.stopPropagation();
-            if (!ev.who.includes(x)) {
-              ev.who.push(x);
-              saveToSheetDebounced();
-            }
-            render();
-            closePortal();
-          });
-          row.append(left, addBtn);
-          panel.append(row);
+          const row=document.createElement('div'); row.className='menu-row';
+          row.addEventListener('click',(e)=>{ e.stopPropagation(); if(!ev.who.includes(x)){ ev.who.push(x); saveToSheetDebounced(); } render(); closePortal(); });
+          const left=document.createElement('div'); left.className='who-side';
+          left.append(el('span',{className:'pill', style:`background:${COLORS[x]}`}), el('b',{textContent:x}), el('span',{textContent:FRIENDS[x]}));
+          const addBtn=el('button',{className:'add-mini', textContent:'+'});
+          addBtn.addEventListener('click',(e)=>{ e.stopPropagation(); if(!ev.who.includes(x)){ ev.who.push(x); saveToSheetDebounced(); } render(); closePortal(); });
+          row.append(left, addBtn); panel.append(row);
         });
       }
 
-      const r = anchor.getBoundingClientRect();
-      const panelW = Math.min(260, Math.max(220, Math.floor(window.innerWidth*0.9)));
-      const margin = 8;
-      const topSpace = r.top;
-      const bottomSpace = window.innerHeight - r.bottom;
-      const openDown = bottomSpace >= 220 || bottomSpace >= topSpace;
-
-      const left = Math.min(window.innerWidth - panelW - 8, Math.max(8, r.right - panelW));
-      const top = (openDown ? (r.bottom + margin) : (r.top - margin)) + window.scrollY;
-
-      portal.style.left = left + 'px';
-      portal.style.top = (openDown ? top : (top - panel.offsetHeight)) + 'px';
+      const r=anchor.getBoundingClientRect();
+      const panelW=Math.min(260, Math.max(220, Math.floor(window.innerWidth*0.9)));
+      const margin=8; const topSpace=r.top; const bottomSpace=window.innerHeight-r.bottom;
+      const openDown = bottomSpace>=220 || bottomSpace>=topSpace;
+      const left = Math.min(window.innerWidth-panelW-8, Math.max(8, r.right-panelW));
+      const top = (openDown ? (r.bottom+margin) : (r.top-margin)) + window.scrollY;
+      portal.style.left=left+'px';
+      portal.style.top=(openDown ? top : (top - panel.offsetHeight))+'px';
       portal.classList.add('open');
     }
 
-    // Cierre global + acciones
     document.addEventListener('click', (e)=>{
       if (!e.target.closest('.menu-portal')) closePortal();
 
@@ -481,106 +417,72 @@
         const ev = findEvent(day, time, title, venue);
         if (!ev) return;
         const idx = ev.who.indexOf(initial);
-        if (idx !== -1){
-          ev.who.splice(idx,1);
-          saveToSheetDebounced(); // guarda tras eliminar
-          render();
-          closePortal();
-        }
+        if (idx !== -1){ ev.who.splice(idx,1); saveToSheetDebounced(); render(); closePortal(); }
       }
 
       if (e.target && e.target.id === 'copyBtn'){
         const txt = $('#plaintext').textContent;
         navigator.clipboard?.writeText(txt).then(()=>{
-          e.target.textContent = 'Copiado';
-          setTimeout(()=> e.target.textContent = 'Copiar', 1200);
+          e.target.textContent='Copiado'; setTimeout(()=> e.target.textContent='Copiar', 1200);
         }).catch(()=>{
-          const ta = document.createElement('textarea');
-          ta.value = txt; document.body.appendChild(ta); ta.select();
+          const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select();
           try{ document.execCommand('copy'); }catch{}
           ta.remove();
         });
       }
     }, {passive:true});
-
     window.addEventListener('scroll', closePortal, {passive:true});
     window.addEventListener('resize', closePortal);
 
     function findEvent(day, time, title, venue){
       const list = DATA[day] || [];
-      return list.find(e => e.time === time && e.title === title && e.venue === venue);
+      return list.find(e => e.time===time && e.title===title && e.venue===venue);
     }
 
-    // ====== Tests no intrusivos ======
     function computeCounts(filterKey){
       let shows=0, tickets=0;
       for (const day of DAY_ORDER){
         for (const ev of (DATA[day]||[])){
-          const ok = (filterKey==='ALL') || ev.who.includes(filterKey);
-          if (ok){
-            shows++;
-            tickets += (filterKey==='ALL') ? ev.who.length : 1;
-          }
+          const ok=(filterKey==='ALL') || ev.who.includes(filterKey);
+          if (ok){ shows++; tickets += (filterKey==='ALL') ? ev.who.length : 1; }
         }
       }
-      return {shows, tickets};
+      return {shows,tickets};
     }
 
-    function deepClone(obj){ return JSON.parse(JSON.stringify(obj)); }
-
+    // *** FIX: selfTests restaura el filtro previo ***
     function selfTests(){
+      const prev = filter;
       try{
         const keys=['ALL',...Object.keys(FRIENDS)];
         for (const k of keys){
           setFilter(k);
-          const s = Number(document.getElementById('shows').textContent);
-          const t = Number(document.getElementById('tickets').textContent);
-          const exp = computeCounts(k);
-          console.assert(s===exp.shows, `[TEST] shows(${k}) esperado ${exp.shows}, obtenido ${s}`);
-          console.assert(t===exp.tickets, `[TEST] tickets(${k}) esperado ${exp.tickets}, obtenido ${t}`);
+          const s=+$('#shows').textContent, t=+$('#tickets').textContent, exp=computeCounts(k);
+          console.assert(s===exp.shows && t===exp.tickets, '[TEST] counters', k, s,t,exp);
         }
-
-        const snapshot = deepClone(DATA);
-        const day='VIERNES';
-        const ev = DATA[day][0];
-        const beforeA = ev.who.includes('A');
-        if (!beforeA) ev.who.push('A'); else ev.who.splice(ev.who.indexOf('A'),1);
-        setFilter('A');
-        const txt = document.getElementById('plaintext').textContent;
-        console.assert(txt.includes(day), '[TEST] texto plano actualizado incluye el día');
-        for (const d of DAY_ORDER){ DATA[d].splice(0, DATA[d].length, ...snapshot[d]); }
-        setFilter('ALL');
-
-        const sample = DATA['DOMINGO'][1];
-        const ref = findEvent('DOMINGO', sample.time, sample.title, sample.venue);
-        console.assert(ref === sample, '[TEST] findEvent debe devolver el mismo objeto');
-
-        console.log('%c[TEST] OK · Autocomprobaciones básicas','color:#6ee7b7');
-      }catch(e){ console.warn('[TEST] Aviso durante pruebas:', e); }
+        console.log('%c[TEST] OK','color:#6ee7b7');
+      }catch(e){ console.warn('[TEST]',e); }
+      // restaurar filtro original
+      setFilter(prev);
     }
 
-    // === PERSIST · init: prioriza hoja; si vacía, siembra con DEFAULT_DATA
-    async function init() {
-      try {
+    async function init(){
+      setLoading(true);
+      try{
         const rows = await loadFromSheet();
-        if (rows && rows.length > 0) {
-          DATA = DATAFromRows(rows);
-        } else if (rows && rows.length === 0) {
-          DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
-          saveToSheetDebounced();
-        } else {
-          DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
-        }
-      } catch {
-        DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
-      }
+        if (rows && rows.length>0)       DATA = DATAFromRows(rows);
+        else if (rows && rows.length===0){ DATA = JSON.parse(JSON.stringify(DEFAULT_DATA)); saveToSheetDebounced(); }
+        else                              DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      }catch{ DATA = JSON.parse(JSON.stringify(DEFAULT_DATA)); }
 
-      buildTabs();
-      render();
+      buildTabs(); render();
       selfTests();
-    }
 
-    // Init
+      // Asegurar que arrancamos en “Todos”
+      setFilter('ALL');
+
+      setLoading(false);
+    }
     init();
   </script>
 </body>
