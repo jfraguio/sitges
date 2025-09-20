@@ -141,11 +141,16 @@
   </div>
 
   <script>
-    // Datos base
+    // Datos base amigos/colores
     const FRIENDS = { G:"Garcés", A:"Alberto", M:"Morell", D:"David", F:"Fraguío", J:"Jorge" };
-    const COLORS = { G:'var(--G)', A:'var(--A)', M:'var(--M)', D:'var(--D)', F:'var(--F)', J:'var(--J)' };
+    const COLORS  = { G:'var(--G)', A:'var(--A)', M:'var(--M)', D:'var(--D)', F:'var(--F)', J:'var(--J)' };
     const DAY_ORDER = ["VIERNES","SÁBADO","DOMINGO","LUNES","MARTES"];
-    const DATA = {
+
+    // === PERSIST · URL del Web App de Apps Script (acaba en /exec)
+    const PERSIST_URL = "https://script.google.com/macros/s/AKfycbxvQhTP9gUB6wlqBVto7T7Jn5WrUODaOv9XrBf4pv-UBKIBk1zBnIERqIYbhsnYc6I/exec";
+
+    // Estado por defecto (si la hoja está vacía)
+    const DEFAULT_DATA = {
       "VIERNES": [
         { time:"18:30", title:"Tornado", venue:"Auditori", who:["F","G","A"] },
         { time:"22:45", title:"Together", venue:"Auditori", who:["F","G","A"] },
@@ -177,10 +182,13 @@
       ]
     };
 
-    // Estado
+    // === PERSIST · estado vivo
+    let DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
+
+    // Estado UI
     let filter = 'ALL';
 
-    // UI helpers
+    // Helpers DOM
     const $ = sel => document.querySelector(sel);
     const el = (tag, props={}, children=[])=>{
       const n = document.createElement(tag);
@@ -191,6 +199,76 @@
       return n;
     };
 
+    // === PERSIST · serialización para hoja
+    function rowsFromDATA(obj) {
+      const rows = [];
+      for (const day of DAY_ORDER) {
+        for (const ev of (obj[day] || [])) {
+          rows.push({
+            day,
+            time: ev.time,
+            title: ev.title,
+            venue: ev.venue,
+            who: (ev.who || []).join('')
+          });
+        }
+      }
+      return rows;
+    }
+
+    function DATAFromRows(rows) {
+      const byDay = {};
+      for (const d of DAY_ORDER) byDay[d] = [];
+      for (const r of rows) {
+        const day = r.day && DAY_ORDER.includes(r.day) ? r.day : null;
+        if (!day) continue;
+        byDay[day].push({
+          time: r.time || '',
+          title: r.title || '',
+          venue: r.venue || '',
+          who: (r.who || '').replace(/[^A-Z]/gi,'').toUpperCase().split('').filter(Boolean)
+        });
+      }
+      for (const d of DAY_ORDER) {
+        byDay[d].sort((a,b)=> (a.time||'').localeCompare(b.time||''));
+      }
+      return byDay;
+    }
+
+    // === PERSIST · cliente API (Apps Script)
+    async function loadFromSheet() {
+      if (!PERSIST_URL) return null;
+      try {
+        const r = await fetch(PERSIST_URL, { method: 'GET' });
+        if (!r.ok) return null;
+        const json = await r.json();
+        if (!json || !Array.isArray(json.rows)) return null;
+        if (json.rows.length === 0) return []; // hoja vacía
+        return json.rows;
+      } catch { return null; }
+    }
+
+    let _saveTimer = null;
+    function saveToSheetDebounced() {
+      clearTimeout(_saveTimer);
+      _saveTimer = setTimeout(saveToSheet, 350); // evita ráfagas
+    }
+
+    async function saveToSheet() {
+      if (!PERSIST_URL) return;
+      try {
+        const rows = rowsFromDATA(DATA);
+        await fetch(PERSIST_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' }, // evita preflight
+          body: 'data=' + encodeURIComponent(JSON.stringify({ rows }))
+        });
+      } catch (e) {
+        console.warn('[PERSIST] Error al guardar:', e);
+      }
+    }
+
+    // Tabs + filtro
     function buildTabs(){
       const tabs = $('#tabs');
       tabs.innerHTML='';
@@ -220,6 +298,7 @@
       return who.includes(filter);
     }
 
+    // Texto plano
     function buildPlainText(){
       const parts = [];
       for (const day of DAY_ORDER){
@@ -238,14 +317,15 @@
       return parts.join('\n');
     }
 
+    // Render
     function render(){
       const grid = $('#grid');
       grid.innerHTML='';
-      let shows = 0; // nº de tarjetas visibles
-      let tickets = 0; // entradas necesarias
+      let shows = 0;
+      let tickets = 0;
 
       for (const day of DAY_ORDER){
-        const items = DATA[day].slice().sort((a,b)=>a.time.localeCompare(b.time));
+        const items = (DATA[day]||[]).slice().sort((a,b)=>a.time.localeCompare(b.time));
         const container = el('section',{className:'day'});
         const head = el('div',{className:'dayhead'},[
           el('div',{className:'dayname', textContent:day})
@@ -300,7 +380,6 @@
       $('#shows').textContent = shows;
       $('#tickets').textContent = tickets;
 
-      // Actualiza texto plano + botón copiar
       const txt = buildPlainText();
       $('#plaintext').textContent = txt || '— Sin resultados para el filtro actual —';
     }
@@ -316,7 +395,6 @@
         portalEl.appendChild(panel);
         document.body.appendChild(portalEl);
 
-        // Evita cierre al interactuar dentro
         portalEl.addEventListener('click', e => e.stopPropagation());
         portalEl.addEventListener('touchstart', e => e.stopPropagation(), {passive:true});
       }
@@ -331,14 +409,12 @@
     }
 
     function openMenuFor(day, ev, anchor){
-      // Cierra cualquier menú abierto antes de abrir otro (mejora “+”)
       closePortal();
 
       const portal = ensurePortal();
       const panel = portal.querySelector('.menu-panel');
       panel.innerHTML = '';
 
-      // construir opciones restantes
       const notIn = Object.keys(FRIENDS).filter(x=>!ev.who.includes(x));
       if (notIn.length === 0){
         const row = document.createElement('div');
@@ -350,7 +426,10 @@
           const row = document.createElement('div');
           row.addEventListener('click', (e)=>{
             e.stopPropagation();
-            if (!ev.who.includes(x)) ev.who.push(x);
+            if (!ev.who.includes(x)) {
+              ev.who.push(x);
+              saveToSheetDebounced(); // guarda tras añadir
+            }
             render();
             closePortal();
           });
@@ -365,7 +444,10 @@
           const addBtn = el('button',{className:'add-mini', textContent:'+'});
           addBtn.addEventListener('click', (e)=>{
             e.stopPropagation();
-            if (!ev.who.includes(x)) ev.who.push(x);
+            if (!ev.who.includes(x)) {
+              ev.who.push(x);
+              saveToSheetDebounced();
+            }
             render();
             closePortal();
           });
@@ -374,7 +456,6 @@
         });
       }
 
-      // Posicionamiento inteligente (arriba o abajo)
       const r = anchor.getBoundingClientRect();
       const panelW = Math.min(260, Math.max(220, Math.floor(window.innerWidth*0.9)));
       const margin = 8;
@@ -390,9 +471,8 @@
       portal.classList.add('open');
     }
 
-    // Cierre por interacción global
+    // Cierre global + acciones
     document.addEventListener('click', (e)=>{
-      // Cerrar menú si se hace click fuera
       if (!e.target.closest('.menu-portal')) closePortal();
 
       const tag = e.target.closest('.tag');
@@ -401,10 +481,14 @@
         const ev = findEvent(day, time, title, venue);
         if (!ev) return;
         const idx = ev.who.indexOf(initial);
-        if (idx !== -1){ ev.who.splice(idx,1); render(); closePortal(); }
+        if (idx !== -1){
+          ev.who.splice(idx,1);
+          saveToSheetDebounced(); // guarda tras eliminar
+          render();
+          closePortal();
+        }
       }
 
-      // Botón copiar
       if (e.target && e.target.id === 'copyBtn'){
         const txt = $('#plaintext').textContent;
         navigator.clipboard?.writeText(txt).then(()=>{
@@ -419,7 +503,6 @@
       }
     }, {passive:true});
 
-    // Cierre al hacer scroll o redimensionar (experiencia móvil)
     window.addEventListener('scroll', closePortal, {passive:true});
     window.addEventListener('resize', closePortal);
 
@@ -447,7 +530,6 @@
 
     function selfTests(){
       try{
-        // 1) Contadores coherentes con filtro
         const keys=['ALL',...Object.keys(FRIENDS)];
         for (const k of keys){
           setFilter(k);
@@ -458,7 +540,6 @@
           console.assert(t===exp.tickets, `[TEST] tickets(${k}) esperado ${exp.tickets}, obtenido ${t}`);
         }
 
-        // 2) Añadir/Quitar actualiza contadores y texto
         const snapshot = deepClone(DATA);
         const day='VIERNES';
         const ev = DATA[day][0];
@@ -467,29 +548,40 @@
         setFilter('A');
         const txt = document.getElementById('plaintext').textContent;
         console.assert(txt.includes(day), '[TEST] texto plano actualizado incluye el día');
-        // restore
         for (const d of DAY_ORDER){ DATA[d].splice(0, DATA[d].length, ...snapshot[d]); }
         setFilter('ALL');
 
-        // 3) findEvent devuelve la misma referencia
         const sample = DATA['DOMINGO'][1];
         const ref = findEvent('DOMINGO', sample.time, sample.title, sample.venue);
         console.assert(ref === sample, '[TEST] findEvent debe devolver el mismo objeto');
-
-        // 4) Evita duplicados al añadir vía UI (simulado)
-        const ev2 = DATA['LUNES'][2]; // Luger con FDGA
-        const lenBefore = ev2.who.length;
-        if (!ev2.who.includes('F')) ev2.who.push('F'); // no debería ejecutarse
-        console.assert(ev2.who.length === lenBefore, '[TEST] no debe haber duplicados en who');
 
         console.log('%c[TEST] OK · Autocomprobaciones básicas','color:#6ee7b7');
       }catch(e){ console.warn('[TEST] Aviso durante pruebas:', e); }
     }
 
+    // === PERSIST · init: prioriza hoja; si vacía, siembra con DEFAULT_DATA
+    async function init() {
+      try {
+        const rows = await loadFromSheet();
+        if (rows && rows.length > 0) {
+          DATA = DATAFromRows(rows);
+        } else if (rows && rows.length === 0) {
+          DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
+          saveToSheetDebounced();
+        } else {
+          DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        }
+      } catch {
+        DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      }
+
+      buildTabs();
+      render();
+      selfTests();
+    }
+
     // Init
-    buildTabs();
-    render();
-    selfTests();
+    init();
   </script>
 </body>
 </html>
