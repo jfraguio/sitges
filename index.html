@@ -130,20 +130,23 @@
 
     const DEFAULT_DATA = {
       "VIERNES":[
-        {time:"18:30",title:"Tornado",venue:"Auditori",who:["F","G","A"]},
+        {time:"18:30",title:"Tornado",venue:"Auditori",who:["F"]},
+        {time:"20:30",title:"La Virgen de la Tosquera",venue:"Auditori",who:["G","A"]},
         {time:"22:45",title:"Together",venue:"Auditori",who:["F","G","A"]}
       ],
       "SÁBADO":[
         {time:"14:15",title:"Good Boy",venue:"Auditori",who:["M","D","J","G","A"]},
         {time:"16:00",title:"The furious",venue:"Auditori",who:["F"]},
         {time:"18:30",title:"We Bury The Dead",venue:"Auditori",who:["D"]},
-        {time:"19:30",title:"V/H/S/Halloween",venue:"Prado",who:["F","G","A"]},
+        {time:"19:00",title:"The true beauty of being bitten by a tick",venue:"Escorxador",who:["G","A"]},
+        {time:"19:30",title:"V/H/S/Halloween",venue:"Prado",who:["F"]},
         {time:"19:45",title:"Singular",venue:"Tramuntana",who:["D"]},
-        {time:"22:45",title:"La hermanastra fea",venue:"Auditori",who:["F","D","G","A"]}
+        {time:"22:45",title:"La hermanastra fea",venue:"Auditori",who:["F","D","G","A"]},
+        {time:"01:15",title:"Fuck My Son",venue:"Auditori",who:["F","G","A"]},
       ],
       "DOMINGO":[
         {time:"08:15",title:"La vida de chuck",venue:"Auditori",who:["F"]},
-        {time:"12:00",title:"Test Screening",venue:"Brigadoon",who:["F","D","G","A"]},
+        {time:"12:00",title:"Test Screening",venue:"Brigadoon",who:["F","G","A"]},
         {time:"16:00",title:"It Ends",venue:"Tramuntana",who:["D","M"]},
         {time:"19:00",title:"La vida de chuck",venue:"Auditori",who:["M","D","G","A"]},
         {time:"21:15",title:"Exit 8",venue:"Auditori",who:["F","D","G","A"]},
@@ -151,6 +154,7 @@
       ],
       "LUNES":[
         {time:"08:15",title:"The Plague",venue:"Auditori",who:["D"]},
+        {time:"16:15",title:"Esa cosa con alas",venue:"Auditori",who:["F", "G", "A"]},
         {time:"18:30",title:"Crims",venue:"Doble Crim Bellvitge",who:["D","M"]},
         {time:"23:15",title:"Luger",venue:"Auditori",who:["F","D","G","A"]}
       ],
@@ -167,43 +171,31 @@
     const el = (t, props={}, kids=[]) => { const n=document.createElement(t); const {dataset,...rest}=props; Object.assign(n,rest); if(dataset){for(const[k,v]of Object.entries(dataset))n.dataset[k]=v;} kids.forEach(k=>n.append(k)); return n; };
     function setLoading(v){ $('#loading').classList.toggle('hidden', !v); }
 
-    // ——— helpers de normalización estrictamente a string ———
     function normalizeDay(v){
       const s = String(v ?? '').trim();
       const up = s.toUpperCase();
-      // usamos las claves internas si coinciden
       return DAY_ORDER.includes(up) ? up : up;
     }
 
-    // NO parseamos strings como Date. Solo números/Date reales de Sheets.
-    // CAMBIO 1: reemplaza normalizeTime por esto
     function normalizeTime(v){
         if (v == null) return '';
-
-        // a) Si viene como número (fracción de día de Google Sheets)
         if (typeof v === 'number'){
             const totalSecs = Math.round(v * 24 * 60 * 60);
             const hh = String(Math.floor(totalSecs / 3600) % 24).padStart(2,'0');
             const mm = String(Math.floor((totalSecs % 3600) / 60)).padStart(2,'0');
             return `${hh}:${mm}`;
         }
-
-        // b) Si viene como Date real
         if (v instanceof Date && !isNaN(v)){
             const hh = String(v.getHours()).padStart(2,'0');
             const mm = String(v.getMinutes()).padStart(2,'0');
             return `${hh}:${mm}`;
         }
-
-        // c) Si viene como string (incluido el feo "Sat Dec 30 1899 ...")
         const s = String(v).trim();
-        const m = s.match(/\b(\d{1,2}):(\d{2})\b/);  // extrae HH:MM de cualquier texto
+        const m = s.match(/\b(\d{1,2}):(\d{2})\b/);
         if (m) return m[1].padStart(2,'0') + ':' + m[2];
-        return s; // si no hay hora reconocible, lo muestra tal cual
+        return s;
     }
 
-
-    // ordenar sin tocar el texto mostrado
     function timeToMinutes(s){
       const m = String(s||'').match(/^\s*(\d{1,2}):(\d{2})\s*$/);
       return m ? (+m[1])*60 + (+m[2]) : 99999;
@@ -247,7 +239,6 @@
         if (!r.ok) return null;
         const j = await r.json();
         if (!j || !Array.isArray(j.rows)) return null;
-        // Fuerza string en llegada para evitar “Sat Dec 30 1899…”
         return j.rows.map(row => ({
           day: (row.day ?? row.Day ?? ''),
           time: (row.time ?? row.Time ?? ''),
@@ -345,12 +336,32 @@
     }
 
     let portalEl=null;
-    function ensurePortal(){ if(!portalEl){ portalEl=document.createElement('div'); portalEl.className='menu-portal'; const panel=document.createElement('div'); panel.className='menu-panel'; portalEl.appendChild(panel); document.body.appendChild(portalEl); portalEl.addEventListener('click',e=>e.stopPropagation()); portalEl.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true}); } return portalEl; }
-    function closePortal(){ if(portalEl){ portalEl.classList.remove('open'); portalEl.style.left='-9999px'; portalEl.style.top='-9999px'; } }
+    function ensurePortal(){
+      if(!portalEl){
+        portalEl=document.createElement('div');
+        portalEl.className='menu-portal';
+        const panel=document.createElement('div');
+        panel.className='menu-panel';
+        portalEl.appendChild(panel);
+        document.body.appendChild(portalEl);
+        portalEl.addEventListener('click',e=>e.stopPropagation());
+        portalEl.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
+      }
+      return portalEl;
+    }
+    function closePortal(){
+      if(portalEl){
+        portalEl.classList.remove('open');
+        portalEl.style.left='-9999px';
+        portalEl.style.top='-9999px';
+      }
+    }
+
     function openMenuFor(day,ev,anchor){
       closePortal();
       const portal=ensurePortal();
       const panel=portal.querySelector('.menu-panel'); panel.innerHTML='';
+
       const notIn=Object.keys(FRIENDS).filter(x=>!ev.who.includes(x));
       if (notIn.length===0){
         const row=document.createElement('div'); row.className='menu-row'; row.textContent='Ya estáis todos añadidos.'; panel.append(row);
@@ -365,15 +376,40 @@
           row.append(left,addBtn); panel.append(row);
         });
       }
-      const r=anchor.getBoundingClientRect();
-      const panelW=Math.min(260,Math.max(220,Math.floor(window.innerWidth*0.9)));
-      const margin=8; const topSpace=r.top; const bottomSpace=window.innerHeight-r.bottom;
-      const openDown = bottomSpace>=220 || bottomSpace>=topSpace;
-      const left=Math.min(window.innerWidth-panelW-8,Math.max(8,r.right-panelW));
-      const top=(openDown?(r.bottom+margin):(r.top-margin))+window.scrollY;
-      portal.style.left=left+'px';
-      portal.style.top=(openDown?top:(top-panel.offsetHeight))+'px';
+
+      // ---------- POSICIONAMIENTO CORREGIDO ----------
+      // FIX 1: Mostrar temporalmente para poder medir altura/anchura reales
       portal.classList.add('open');
+      portal.style.left='-9999px';
+      portal.style.top='-9999px';
+
+      const r = anchor.getBoundingClientRect();
+      const margin = 8;
+
+      // Ancho objetivo del panel
+      const panelW = Math.min(260, Math.max(220, Math.floor(window.innerWidth * 0.9)));
+      panel.style.minWidth = '220px';
+      panel.style.maxWidth = '90vw';
+      panel.style.width = panelW + 'px';
+
+      // Medimos altura real ahora que está visible
+      const panelH = panel.offsetHeight;
+
+      const bottomSpace = window.innerHeight - r.bottom;
+      const topSpace = r.top;
+      const openDown = bottomSpace >= panelH || bottomSpace >= topSpace;
+
+      // FIX 2: Coordenadas en viewport (position:fixed) → NO sumar scrollY
+      let left = Math.min(window.innerWidth - panelW - 8, Math.max(8, r.right - panelW));
+      let top  = openDown ? (r.bottom + margin) : (r.top - margin - panelH);
+
+      // FIX 3: Encajonar dentro de la ventana
+      top  = Math.max(8, Math.min(window.innerHeight - panelH - 8, top));
+      left = Math.max(8, Math.min(window.innerWidth - panelW - 8, left));
+
+      portal.style.left = left + 'px';
+      portal.style.top  = top  + 'px';
+      // -----------------------------------------------
     }
 
     document.addEventListener('click',(e)=>{
